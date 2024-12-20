@@ -22,14 +22,20 @@ class MyScreenState extends HookConsumerWidget {
       );
 
       player.stream.tracks.listen((event) async {
-        debugPrint('selected Language === ${event.audio}');
-
         final List<AudioTrack> audioswithLanguage = event.audio.where((audio) {
           return audio.language != null && audio.language!.isNotEmpty;
         }).toList();
         audioTracks.value = audioswithLanguage;
         debugPrint(
             'Audio Tracks: ${event.audio.map((e) => e.language).toList()}');
+      });
+
+      player.stream.track.listen((event) async {
+        AudioTrack audio = event.audio;
+
+        await player.play();
+
+        debugPrint('current track === $audio');
       });
     }, []);
 
@@ -104,19 +110,14 @@ class MyScreenState extends HookConsumerWidget {
                 return ListTile(
                   title: Text(audioTracks[index].language ?? 'null'),
                   onTap: () async {
-                    // List<AudioTrack> audios = player.state.tracks.audio;
+                    debugPrint('audio Tracks == $audioTracks');
 
                     await player.setAudioTrack(audioTracks[index]);
-                    // await player.setAudioTrack(audios[index]);
 
                     AudioTrack audio = player.state.track.audio;
 
                     debugPrint(
                         'audio now == ${audioTracks[index].language} ${audio.language}');
-
-                    // List<AudioDevice> devices = player.state.audioDevices;
-
-                    // await player.setAudioDevice(devices[0]);
 
                     if (context.mounted) {
                       Navigator.of(context).pop();
